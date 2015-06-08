@@ -1,10 +1,10 @@
 
 !function (tm,undefined){
     /**
-     * ‰¹ƒQ[ (ã‚©‚ç~‚Á‚Ä‚­‚éƒ^ƒCƒv)
-     * ƒ^ƒCƒ~ƒ“ƒO‚Í”»’è‚·‚é‚Æ‚« audiocontext.currentTime ‚Æ”äŠr
-     * ƒ^ƒbƒ`ƒCƒxƒ“ƒg—Ş‚Í update ‚Åæ‚ç‚¸‚ÉA window ‚Å‚â‚é
-     * ‚Æ‚è‚ ‚¦‚¸A‚±‚ê‚Å‚ÍƒL[ƒ{[ƒhƒCƒxƒ“ƒg‚Å‚â‚Á‚Ä‚İ‚é
+     * éŸ³ã‚²ãƒ¼ (ä¸Šã‹ã‚‰é™ã£ã¦ãã‚‹ã‚¿ã‚¤ãƒ—)
+     * ã‚¿ã‚¤ãƒŸãƒ³ã‚°ã¯åˆ¤å®šã™ã‚‹ã¨ã audiocontext.currentTime ã¨æ¯”è¼ƒ
+     * ã‚¿ãƒƒãƒã‚¤ãƒ™ãƒ³ãƒˆé¡ã¯ update ã§å–ã‚‰ãšã«ã€ window ã§ã‚„ã‚‹
+     * ã¨ã‚Šã‚ãˆãšã€ã“ã‚Œã§ã¯ã‚­ãƒ¼ãƒœãƒ¼ãƒ‰ã‚¤ãƒ™ãƒ³ãƒˆã§ã‚„ã£ã¦ã¿ã‚‹
      * DFJK
      * 68, 70, 74, 75
      * */
@@ -68,7 +68,7 @@
     });
     
     
-    //•ˆ–ÊŠÇ—ƒNƒ‰ƒX
+    //è­œé¢ç®¡ç†ã‚¯ãƒ©ã‚¹
     var Music = tm.define('',{
         superClass:tm.event.EventDispatcher,
         
@@ -95,7 +95,7 @@
         
     });
     
-    //Šy•ˆƒNƒ‰ƒX
+    //æ¥½è­œã‚¯ãƒ©ã‚¹
     var Score = tm.define('',{
         superClass:tm.event.EventDispatcher,
         init:function(){
@@ -103,7 +103,7 @@
         }
     });
     
-    //‰Ÿ‚·‚Æ‚±‚ë
+    //æŠ¼ã™ã¨ã“ã‚
     var KeyButton = tm.define('',{
         superClass:display.CircleShape,
         type:null,
@@ -146,7 +146,7 @@
         
     });
     
-    //‚Ù‚í‚ñ‚Á‚Ä‚â‚Â
+    //ã»ã‚ã‚“ã£ã¦ã‚„ã¤
     var Wave =tm.define('',{
         superClass:display.Sprite,
         
