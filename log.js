@@ -27,12 +27,22 @@
     var app;
     var pointing;
     
+    
     tm.main(function(){
        app = tm.display.CanvasApp('#world');
        pointing = app.pointing;
        app.fps = 30;
-       app.resize(SCREEN_SIZE,SCREEN_SIZE).fitWindow().background='#eee';
-       app.replaceScene(tm.scene.LoadingScene({
+       app.resize(SCREEN_SIZE, SCREEN_SIZE).fitWindow().background = '#eee';
+       var isSoundAvailable = false;
+       var func;
+       window.addEventListener('touchstart', func=function (e) {
+           if (isSoundAvailable) return false;
+           isSoundAvailable = true;
+           tm.sound.WebAudio.unlock();
+           window.removeEventListener('touchstart', func);
+       });
+
+       app.replaceScene(tm.game.LoadingScene({
            nextScene:GameScene,
            width:SCREEN_SIZE,
            height:SCREEN_SIZE,
@@ -46,7 +56,9 @@
         
         init:function(){
             this.superInit();
+            assets.bgm.clone().play();
             var self = this;
+            KeyButton.SE = [assets.se, assets.snare, assets.snare, assets.se];
             this.addChild(KeyButtonManager());
         },
         
@@ -96,7 +108,8 @@
         superClass:display.CircleShape,
         type:null,
         keyCode:null,
-        _index:0,
+        _index: 0,
+        se:null,
         
         
         init:function(index){
@@ -111,11 +124,13 @@
             this.type = KeyButton.TYPES[index];
             this.keyCode = KeyButton.KEY_CODES[index];
             this._index = index;
+            this.se = KeyButton.SE[index];
             
             this.addChild(Label(this.type).setFontSize(this.width));
         },
         
-        push:function(){
+        push: function () {
+            this.se.clone().play();
             this.pushWave();
         },
         
@@ -295,19 +310,19 @@
         KEY_PARAM:[
             {
                 fillStyle:'#c55',
-                strokeStyle:'#f77',
+                strokeStyle: '#f77',
             },
             {
                 fillStyle:'#55c',
-                strokeStyle:'#77f',
+                strokeStyle: '#77f',
             },
             {
                 fillStyle:'#5c5',
-                strokeStyle:'#7f7',
+                strokeStyle: '#7f7',
             },
             {
                 fillStyle:'#bb2',
-                strokeStyle:'yellow',
+                strokeStyle: 'yellow',
             },
         ],
         
