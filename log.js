@@ -1,13 +1,13 @@
-
+/// <reference path="tmlib.js"/>
 !function (tm,undefined){
+    
     /**
-     * 音ゲー (上から降ってくるタイプ)
-     * タイミングは判定するとき audiocontext.currentTime と比較
-     * タッチイベント類は update で取らずに、 window でやる
-     * とりあえず、これではキーボードイベントでやってみる
-     * DFJK
-     * 68, 70, 74, 75
-     * */
+    ログから譜面を作る
+    まず、始まったら、あらかじめ決めておいた表示可能領域までの譜面を表示する。
+    譜面の描画順はあとから(一番手前が最前面)
+    描画の更新はUPDATEで行う。
+
+    */
 
     var SCREEN_SIZE = 640;
     var ASSETS={
@@ -26,6 +26,10 @@
     
     var app;
     var pointing;
+    var otoge = {};
+    var logger = tm.util.Log();
+    logger.create(['D', 'F', 'J', 'K']);
+    
     
     
     tm.main(function(){
@@ -56,7 +60,15 @@
         
         init:function(){
             this.superInit();
-            assets.bgm.clone().play();
+            var bgm = assets.bgm.clone();
+            bgm.on('ended', function () { logger.download('otogescore'); });
+            window.addEventListener('keydown', function (e) {
+                if (e.which === 13) { logger.download(); }
+                return false;
+            });
+            bgm.play();
+            otoge.delayTime = context.currentTime;
+
             var self = this;
             KeyButton.SE = [assets.se, assets.snare, assets.snare, assets.se];
             this.addChild(KeyButtonManager());
@@ -132,8 +144,14 @@
         push: function () {
             this.se.clone().play();
             this.pushWave();
+            this.log();
         },
         
+        log: function () {
+            var o = {};
+            o[this.type] = context.currentTime - otoge.delayTime;
+            logger.push(o);
+        },
         
         pushWave:function(){
             var wave = Wave(this.canvas);
