@@ -93,9 +93,6 @@
             this.superInit();
             var music = Music('bgm', SCORE);
 
-            //iPhone‚ÌfitWindow‚µ‚È‚¢ƒoƒO‘Îô
-            window.dispatchEvent(new Event('resize'));
-
             KeyButton.SE = [assets.se, assets.snare, assets.snare, assets.se];
             this.addChild(KeyButtonManager().setMusic(music).setup());
             this.addChild(music);
