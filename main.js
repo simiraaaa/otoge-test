@@ -66,8 +66,7 @@
         app = tm.display.CanvasApp('#world');
         pointing = app.pointing;
         app.fps = 30;
-        app.resize(SCREEN_SIZE, SCREEN_SIZE).background = '#eee';
-        setTimeout(function () { app.fitWindow();}, 1000);
+        app.resize(SCREEN_SIZE, SCREEN_SIZE).fitWindow().background = '#eee';
         var isSoundAvailable = false;
         var func;
         window.addEventListener('touchstart', func = function (e) {
@@ -372,7 +371,7 @@
                     var _touchID = touches[i].identifier;
 
                     keyList.some(function (e) {
-                        if (null == e._touch) return false;
+                        if (null == e._touchID) return false;
                         if (e._touchID === _touchID) {
                             e._touchID = null;
                             return true;
