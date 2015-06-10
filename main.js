@@ -28,13 +28,21 @@
 
 
     //âüÇµÇΩîªíËnïbà»ì‡
-    //1ïbà»ì‡ÇÕñ≥éãÇ∑ÇÈ
-    var CHECKER = {
-        just: 0.1,
-        good: 0.25,
-        bad: 0.4,
-        miss: 0.6,
-        none:1,
+    //0.4ïbà»ì‡Ç≈Ç∑ÇÁÇ»Ç¢èÍçáâΩÇ‡ÇµÇ»Ç¢
+    var BEFORE_CHECKER = {
+        just: 0.05,
+        good: 0.1,
+        bad: 0.15,
+        miss: 0.2,
+        none: 0.4,
+    };
+
+    //0.16ïbâﬂÇ¨ÇΩÇÁmissÇ≈è¡Ç∑
+    var AFTER_CHECKER = {
+        just: 0.05,
+        good: 0.08,
+        bad: 0.12,
+        miss: 0.16,
     };
 
     //3ïbà»ì‡Ç…âüÇ∑Ç‚Ç¬Ç‹Ç≈ï\é¶
@@ -42,7 +50,11 @@
 
     var app;
     var pointing;
-    var otoge = {};
+    var otoge = {
+        getRelativeTime: function () {
+            return context.currentTime - otoge.delayTime;
+        },
+    };
     var logger = tm.util.Log();
     logger.create(['D', 'F', 'J', 'K']);
 
@@ -78,100 +90,138 @@
 
         init: function () {
             this.superInit();
-            var bgm = assets.bgm.clone();
-            bgm.play();
-            otoge.delayTime = context.currentTime;
+            var music = Music('bgm', SCORE);
 
-            var self = this;
             KeyButton.SE = [assets.se, assets.snare, assets.snare, assets.se];
-            this.addChild(KeyButtonManager());
+            this.addChild(KeyButtonManager().setMusic(music).setup());
+            this.addChild(music);
         },
-
-        update: function (app) {
-
-        }
     });
 
-    //ïàñ ï`âÊÉNÉâÉX
-    var ScoreWriter = tm.define('', {
+    //ïàñ ï`âÊÇ∆Ç©îªíËÇ∆Ç©ëSî ÉNÉâÉX
+    var Music = tm.define('', {
         superClass: CanvasElement,
         score: null,
-        _elements:null,
+        bgm: null,
+        _elements: null,
 
-        init: function (score) {
+        init: function (bgm, score) {
             this.superInit();
+            this.setBgm(bgm);
             this.setScore(score);
-            this._elements = {
-                D: [],
-                F: [],
-                J: [],
-                K: [],
-            };
+            var elms = this._elements = {};
+            var self = this;
+            KeyButton.TYPES.forEach(function (t) {
+                elms[t] = ScoreWriter(t, score).addChildTo(self);
+            });
+            otoge.delayTime = context.currentTime;
+        },
+
+        play: function (k) {
 
         },
 
-        getRelativeTime: function () {
-            return context.currentTime - otoge.delayTime;
+
+        setBgm: function (key) {
+            this.bgm = assets[key].clone();
+            this.bgm.play();
+            return this;
         },
 
+        setScore: function (score) {
+            this.score = score;
+            return this;
+        },
+
+    });
+
+
+    //ïàñ Çï`âÊÇ∑ÇÈàÍóÒ
+    var ScoreWriter = tm.define('', {
+        superClass: CanvasElement,
+        type: null,
+        score: null,
+        target: null,
+        JUST_Y: null,
+        __image:null,
+
+
+        init: function (type, score) {
+            this.superInit();
+            this.type = type;
+            this.score = score[type];
+            this.x = KeyButton.getDefaultX(KeyButton.TYPE_INDEX[type]) - 75;
+            this.y = -75;
+            this.JUST_Y = KeyButton.DEFAULT_Y;
+            this.target = [];
+
+            this.__image = ScoreImage({ type: type }).canvas.element;
+        },
 
         //ï`âÊÇ∑ÇÈëŒè€Ç…Ç»ÇÈéûä‘Çì¸ÇÍÇƒÇ¢Ç≠
         check: function () {
             var score = this.score;
-            var elms = this._elements;
-            var rTime = this.getRelativeTime();
-            score._order.forEach(function (k) {
-                var s = score[k];
-                var _e = elms[k];
-                for (var i = 0, len = s.length; i < len; ++i) {
-                    var t = s[i];
-                    if (DRAW_TIME < t) break;
-                    _e.push(s.shift());
+            var target = this.target;
+            var rTime = otoge.getRelativeTime();
+            for (var i = 0, len = score.length; i < len; ++i) {
+                var t = score[i];
+                if (rTime+DRAW_TIME < t) break;
+                target.push(score.shift());
+            }
+        },
+
+        play: function () { },
+
+
+        //targetÇå„ÇÎÇ©ÇÁï`âÊ
+        draw: function (canvas) {
+            var c = canvas.context;
+            this.check();
+
+            var image = this.__image;
+            var score = this.target;
+            var JUST_Y = this.JUST_Y;
+            var rTime = otoge.getRelativeTime();
+            for (var i = score.length - 1; i >= 0; --i) {
+                var y = 1 - score[i] + rTime;
+                if (y < -0.3) continue;
+                if (y-1 > AFTER_CHECKER.miss){
+                    //miss
+                    break;
                 }
+                c.drawImage(image, 0, 0, 150, 75, 0, y * JUST_Y, 150, 75);
+            }
+        },
+
+    });
+
+
+    var ScoreImage = tm.define('', {
+        superClass: display.Shape,
+        init: function (param) {
+            param = this._dirtyCheckParam.apply(this, arguments);
+            var kp = KeyButton.KEY_PARAM[KeyButton.TYPE_INDEX[param.type]];
+            param = {}.$safe(param, {
+                fillStyle: kp.fillStyle.slice(0, -4) + '1)',
+                strokeStyle: kp.strokeStyle,
+                width: 150,
+                height: 150,
+                lineWidth:10,
             });
+            this.superInit(param);
+
+            this.render();
         },
 
-        setScore: function (score) {
-            this.score = score;
-            return this;
+        _render: function () {
+            var c = this.canvas;
+            c.context.scale(1, 0.5);
+            // ï`âÊ
+            var radius = 75;
+            c.fillCircle(this.width / 2, this.height / 2, radius);
+            c.strokeCircle(this.width / 2, this.height / 2, radius - Number(c.lineWidth) / 2);
         },
 
-    });
-
-
-    //ïàñ ä«óùÉNÉâÉX
-    var Music = tm.define('', {
-        superClass: tm.event.EventDispatcher,
-
-        score: null,
-        delayTime: 0,
-
-
-
-        init: function (score) {
-            this.superInit();
-            this.setScore(score);
-            this.delayTime = context.currentTime;
-        },
-
-        setScore: function (score) {
-            this.score = score;
-            return this;
-        },
-
-        setup: function () {
-
-            return this;
-        },
-
-    });
-
-    //äyïàÉNÉâÉX
-    var Score = tm.define('', {
-        superClass: tm.event.EventDispatcher,
-        init: function () {
-            this.superInit();
-        }
     });
 
     //âüÇ∑Ç∆Ç±ÇÎ
@@ -188,8 +238,9 @@
                 width: 150,
                 height: 150,
                 y: KeyButton.DEFAULT_Y,
-                x: (index + 1) * 0.25 * SCREEN_SIZE - 80,
+                x: KeyButton.getDefaultX(index),
                 lineWidth: 10,
+                scaleY: 0.5,
             }.$extend(KeyButton.KEY_PARAM[index]));
 
             this.type = KeyButton.TYPES[index];
@@ -246,12 +297,15 @@
         superClass: CanvasElement,
 
         keyButtonList: null,
+        _music: null,
 
         __keydown: null,
         __keyup: null,
         __mousedown: null,
         __touchstart: null,
         __touchend: null,
+
+
 
 
 
@@ -263,13 +317,18 @@
                 self.keyButtonList.push(self.addChild(KeyButton(i)));
             });
 
-            this.setup();
+        },
+
+        setMusic: function (music) {
+            this._music = music;
+            return this;
         },
 
         setup: function () {
             this.setOnkeydown();
             this.setOnmousedown();
             this.setOntouchstart();
+            return this;
         },
 
         close: function () {
@@ -287,6 +346,7 @@
         setOntouchstart: function () {
             var keyList = this.keyButtonList;
             var isTouch = [];
+            var music = this._music;
 
             this.__touchstart = function (e) {
                 var touches = e.changedTouches;
@@ -298,6 +358,7 @@
                         if (e._touch) return false;
                         if (e.isHitPointRect(touch.x, touch.y)) {
                             e.push();
+                            music.play(e.type);
                             e._touch = _touch;
                             return true;
                         }
@@ -327,6 +388,9 @@
             var codeList = [];
             var isDown = [0, 0, 0, 0];
             var keyList = this.keyButtonList;
+            var music = this._music;
+
+
             keyList.forEach(function (e) {
                 codeList.push(e.keyCode);
             });
@@ -334,7 +398,9 @@
                 var index = codeList.indexOf(e.which);
                 if (index === -1 || isDown[index]) return false;
                 isDown[index] = true;
-                keyList[index].push();
+                var kb = keyList[index];
+                kb.push();
+                music.play(kb.type);
             };
 
             this.__keyup = function (e) {
@@ -350,12 +416,13 @@
         setOnmousedown: function () {
 
             var keyList = this.keyButtonList;
+            var music = this._music;
 
             this.__mousedown = function (e) {
                 var mouse = KeyButtonManager.getPoint(e);
 
                 keyList.forEach(function (e) {
-                    e.isHitPointRect(mouse.x, mouse.y) && e.push();
+                    e.isHitPointRect(mouse.x, mouse.y) && e.push(), music.play(e.type);
                 });
             };
             app.element.addEventListener('mousedown', this.__mousedown);
@@ -390,23 +457,23 @@
         },
         KEY_PARAM: [
             {
-                fillStyle: '#c55',
+                fillStyle: 'rgba(200,85,85,0.5)',
                 strokeStyle: '#f77',
             },
             {
-                fillStyle: '#55c',
+                fillStyle: 'rgba(85,85,200,0.5)',
                 strokeStyle: '#77f',
             },
             {
-                fillStyle: '#5c5',
+                fillStyle: 'rgba(85,200,85,0.5)',
                 strokeStyle: '#7f7',
             },
             {
-                fillStyle: '#bb2',
+                fillStyle: 'rgba(190,190,50,0.5)',
                 strokeStyle: 'yellow',
             },
         ],
-
+        getDefaultX: function (index) { return (1 + index) * 0.25 * SCREEN_SIZE - 80; },
         DEFAULT_Y: SCREEN_SIZE - 100,
 
     });
