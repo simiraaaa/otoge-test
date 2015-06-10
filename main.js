@@ -76,6 +76,9 @@
             window.removeEventListener('touchstart', func);
         });
 
+        //iPhone‚ÌfitWindow‚µ‚È‚¢ƒoƒO‘Îô
+        window.dispatchEvent(new Event('resize'));
+
         app.replaceScene(tm.game.LoadingScene({
             nextScene: GameScene,
             width: SCREEN_SIZE,
