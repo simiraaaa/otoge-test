@@ -67,7 +67,7 @@
         pointing = app.pointing;
         app.fps = 30;
         app.resize(SCREEN_SIZE, SCREEN_SIZE).background = '#eee';
-        app.fitWindow();
+        setTimeout(function () { app.fitWindow();}, 1000);
         var isSoundAvailable = false;
         var func;
         window.addEventListener('touchstart', func = function (e) {
