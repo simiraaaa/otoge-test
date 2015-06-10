@@ -76,8 +76,6 @@
             window.removeEventListener('touchstart', func);
         });
 
-        //iPhoneのfitWindowしないバグ対策
-        window.dispatchEvent(new Event('resize'));
 
         app.replaceScene(tm.game.LoadingScene({
             nextScene: GameScene,
@@ -94,6 +92,9 @@
         init: function () {
             this.superInit();
             var music = Music('bgm', SCORE);
+
+            //iPhoneのfitWindowしないバグ対策
+            window.dispatchEvent(new Event('resize'));
 
             KeyButton.SE = [assets.se, assets.snare, assets.snare, assets.se];
             this.addChild(KeyButtonManager().setMusic(music).setup());
