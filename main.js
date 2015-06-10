@@ -355,11 +355,11 @@
                     var touch = KeyButtonManager.getPoint(_touch);
 
                     keyList.some(function (e) {
-                        if (e._touch) return false;
+                        if (e._touchID!=null) return false;
                         if (e.isHitPointRect(touch.x, touch.y)) {
                             e.push();
                             music.play(e.type);
-                            e._touch = _touch;
+                            e._touchID = _touch.identifier;
                             return true;
                         }
                     });
@@ -368,12 +368,12 @@
             this.__touchend = function (e) {
                 var touches = e.changedTouches;
                 for (var i = 0, len = touches.length; i < len; ++i) {
-                    var _touch = touches[i];
+                    var _touchID = touches[i].identifier;
 
                     keyList.some(function (e) {
-                        if (!e._touch) return false;
-                        if (e._touch === _touch) {
-                            e._touch = null;
+                        if (null == e._touch) return false;
+                        if (e._touchID === _touchID) {
+                            e._touchID = null;
                             return true;
                         }
                     });
