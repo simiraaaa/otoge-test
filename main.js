@@ -100,6 +100,12 @@ tm.asset.Script.loadStats();
             this.addChild(KeyButtonManager().setup());
             this.addChild(music);
             this.addChild(MessageLayer());
+            var dummy = display.CircleShape();
+            dummy.setPosition(320, 320).update = function () {
+                this.y += 10;
+                this.y>600 &&( this.y=0);
+            };
+            this.addChild(dummy);
         },
     });
 
@@ -342,8 +348,8 @@ tm.asset.Script.loadStats();
             c.context.scale(1, 0.5);
             // 描画
             var radius = 75;
-            c.fillCircle(this.width / 2, this.height / 2, radius);
-            c.strokeCircle(this.width / 2, this.height / 2, radius - Number(c.lineWidth) / 2);
+            c.fillCircle(this.width / 2 | 0, this.height / 2 | 0, radius);
+            c.strokeCircle(this.width / 2 | 0, this.height / 2 | 0, radius - Number(c.lineWidth) / 2 | 0);
         },
 
     });
