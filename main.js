@@ -217,7 +217,7 @@ tm.asset.Script.loadStats();
         __image: null,
 
         //譜面の流れる速度倍率
-        speed:1.5,
+        speed:0.5,
 
 
         init: function (type, score) {
