@@ -135,8 +135,7 @@ tm.asset.Script.loadStats();
             + ',good:' + this.good
             + ',bad:' + this.bad
             + ',miss:' + this.miss
-            + '\nchange speed:cursor up↑ or down↓'
-            +'\ndrawcount:'+otoge.count;
+            + '\nchange speed:cursor up↑ or down↓';
         }
 
 
@@ -235,7 +234,6 @@ tm.asset.Script.loadStats();
                 
             });
             this.__image = ScoreImage({ type: type }).canvas.element;
-            otoge.count = 0;
         },
 
         //描画する対象になる時間を入れていく
@@ -315,8 +313,7 @@ tm.asset.Script.loadStats();
                     //miss
                     return this.miss(score.splice(0, 1 + i));
                 }
-                otoge.count++;
-                c.drawImage(image, 0, 0, 150, 75, 0, (1 + (y * speed)) * JUST_Y, 150, 75);
+                return c.drawImage(image, 0, 0, 150, 75, 0, (1 + (y * speed)) * JUST_Y |0, 150, 75);
             }
         },
 
