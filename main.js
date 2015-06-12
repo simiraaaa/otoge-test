@@ -313,7 +313,7 @@ tm.asset.Script.loadStats();
                     //miss
                     return this.miss(score.splice(0, 1 + i));
                 }
-                return c.drawImage(image, 0, 0, 150, 75, 0, (1 + (y * speed)) * JUST_Y |0, 150, 75);
+                c.drawImage(image, 0, 0, 150, 75, 0, (1 + (y * speed)) * JUST_Y |0, 150, 75);
             }
         },
 
