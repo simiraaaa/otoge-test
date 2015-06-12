@@ -28,32 +28,31 @@
 
 
     //押した判定n秒以内
-    //0.4秒以内ですらない場合何もしない
-    var BEFORE_CHECKER = {
-        just: 0.05,
-        good: 0.1,
-        bad: 0.15,
-        miss: 0.2,
-        none: 0.4,
+    var CHECKER = {
+        just: 0.1,
+        good: 0.13,
+        bad: 0.16,
+        miss: 0.19,
+        none: 0.2,
     };
 
-    //0.16秒過ぎたらmissで消す
-    var AFTER_CHECKER = {
-        just: 0.05,
-        good: 0.08,
-        bad: 0.12,
-        miss: 0.16,
-    };
 
-    //3秒以内に押すやつまで表示
-    var DRAW_TIME = 3.0;
 
     var app;
-    var pointing;
+    //var pointing;
     var otoge = {
+        music:null,
         getRelativeTime: function () {
             return context.currentTime - otoge.delayTime;
         },
+        message:null,
+        JUST: 1,
+        GOOD: 2,
+        BAD: 3,
+        MISS: 4,
+        NONE: 0,
+        delayTime: 0,
+
     };
     var logger = tm.util.Log();
     logger.create(['D', 'F', 'J', 'K']);
@@ -64,7 +63,7 @@
 
     tm.main(function () {
         app = tm.display.CanvasApp('#world');
-        pointing = app.pointing;
+        //pointing = app.pointing;
         app.fps = 30;
         app.resize(SCREEN_SIZE, SCREEN_SIZE).fitWindow().background = '#eee';
         var isSoundAvailable = false;
@@ -94,10 +93,48 @@
             var music = Music('bgm', SCORE);
 
             KeyButton.SE = [assets.se, assets.snare, assets.snare, assets.se];
-            this.addChild(KeyButtonManager().setMusic(music).setup());
+            this.addChild(KeyButtonManager().setup());
             this.addChild(music);
+            this.addChild(MessageLayer());
         },
     });
+
+
+    var MessageLayer = tm.define('', {
+        superClass: CanvasElement,
+
+        label: null,
+        just: 0,
+        good: 0,
+        bad: 0,
+        miss: 0,
+
+
+        init: function () {
+            this.superInit();
+
+            this.label=Label('')
+            .setPosition(10, 10)
+            .setAlign('left')
+            .setFontSize(50)
+            .setFillStyle('black')
+            .setBaseline('top')
+            .addChildTo(this);
+
+            otoge.message = this;
+        },
+
+        update: function (app) {
+            this.label.text =
+                'just:' + this.just
+            + ',good:' + this.good
+            + ',bad:' + this.bad
+            + ',miss:' + this.miss;
+        }
+
+
+    });
+
 
     //譜面描画とか判定とか全般クラス
     var Music = tm.define('', {
@@ -110,16 +147,44 @@
             this.superInit();
             this.setBgm(bgm);
             this.setScore(score);
-            var elms = this._elements = {};
+            var elms = this._elements = [];
             var self = this;
             KeyButton.TYPES.forEach(function (t) {
-                elms[t] = ScoreWriter(t, score).addChildTo(self);
+               elms[KeyButton.TYPE_INDEX[t]] = elms[t] = ScoreWriter(t, score).addChildTo(self);
             });
             otoge.delayTime = context.currentTime;
+
+            otoge.music = this;
         },
 
-        play: function (k) {
+        //判定してスコアに反映したり
+        play: function (t) {
+            return this._elements[KeyButton.TYPE_INDEX[t]].play();
+        },
 
+        none: function () {
+            otoge.message.none++;
+            return otoge.NONE;
+        },
+
+        just: function () {
+            otoge.message.just++;
+            return otoge.JUST;
+        },
+
+        good: function () {
+            otoge.message.good++;
+            return otoge.GOOD;
+        },
+
+        bad: function () {
+            otoge.message.bad++;
+            return otoge.BAD;
+        },
+
+        miss: function () {
+            otoge.message.miss++;
+            return otoge.MISS;
         },
 
 
@@ -142,55 +207,107 @@
         superClass: CanvasElement,
         type: null,
         score: null,
-        target: null,
         JUST_Y: null,
-        __image:null,
+        __image: null,
+
+        //譜面の流れる速度倍率
+        speed:1.5,
 
 
         init: function (type, score) {
             this.superInit();
             this.type = type;
-            this.score = score[type];
+            this.score = score[type].slice(0);
             this.x = KeyButton.getDefaultX(KeyButton.TYPE_INDEX[type]) - 75;
-            this.y = -75;
+            this.y = -38;
             this.JUST_Y = KeyButton.DEFAULT_Y;
-            this.target = [];
-
+            var sel=this;
+            window.addEventListener('keydown' , function (e) {
+                var k = e.which;
+                if (k === 38) { sel.speed += 0.05; } else if (k === 40) { sel.speed -= 0.05; }
+                
+            });
             this.__image = ScoreImage({ type: type }).canvas.element;
         },
 
         //描画する対象になる時間を入れていく
-        check: function () {
-            var score = this.score;
-            var target = this.target;
-            var rTime = otoge.getRelativeTime();
-            for (var i = 0, len = score.length; i < len; ++i) {
-                var t = score[i];
-                if (rTime+DRAW_TIME < t) break;
-                target.push(score.shift());
+        //これをやる必要があるのか
+        //check: function () {
+        //    var score = this.score;
+        //    var target = this.target;
+        //    var rTime = otoge.getRelativeTime();
+        //    var rate = 1 / (this.speed * 0.9);
+        //    for (var i = 0, len = score.length; i < len; ++i) {
+        //        if (rTime + rate < score[i]) break;
+        //        target.push(score.shift());
+        //    }
+        //    return target.length;
+        //},
+
+        //判定して、描画やスコアに反映
+        play: function () {
+            if (!this.score.length) return otoge.NONE;
+            //just = 0
+            var y = otoge.getRelativeTime() - this.score[0];
+            console.log(y);
+            if (y < 0) {
+                if (y < CHECKER.none - 1) return otoge.NONE;
+                y = -y;
             }
+            
+            if (y < CHECKER.just) return this.effect(otoge.JUST);
+
+            if (y <  CHECKER.good) return this.effect(otoge.GOOD);
+
+            if (y <  CHECKER.bad) return this.effect(otoge.BAD);
+            //miss
+            return this.effect(otoge.MISS);
+            
+
         },
 
-        play: function () { },
+        effect: function (timing) {
+            var m = ['none', 'just', 'good', 'bad', 'miss'][timing];
+            console.log(m);
+            var target = otoge.getRelativeTime() - this.score.shift();
+            console.log(target);
+            return otoge.music[m]();
+            //return this[m](1 - otoge.getRelativeTime() - this.target.shift());
+        },
 
 
-        //targetを後ろから描画
+        //押されなかったとき
+        miss: function (targets) {
+            var time = otoge.getRelativeTime();
+            targets.length.times(otoge.music.miss);
+            //ミスしたエフェクトとか
+
+        },
+
+
+        //譜面を後ろから描画
         draw: function (canvas) {
             var c = canvas.context;
-            this.check();
+            if (!this.score.length) return;
 
             var image = this.__image;
-            var score = this.target;
+            var score = this.score;
             var JUST_Y = this.JUST_Y;
             var rTime = otoge.getRelativeTime();
+            var speed = this.speed;
+            var drawArea = -1 / (speed * 0.9);
+            var MISS = CHECKER.miss;
+
             for (var i = score.length - 1; i >= 0; --i) {
-                var y = 1 - score[i] + rTime;
-                if (y < -0.3) continue;
-                if (y-1 > AFTER_CHECKER.miss){
+                var y = rTime - score[i];
+                //そもそも表示領域外
+                if (y < drawArea) continue;
+
+                if (y > MISS){
                     //miss
-                    break;
+                    return this.miss(score.splice(0, 1 + i));
                 }
-                c.drawImage(image, 0, 0, 150, 75, 0, y * JUST_Y, 150, 75);
+                c.drawImage(image, 0, 0, 150, 75, 0, (1 + (y * speed)) * JUST_Y, 150, 75);
             }
         },
 
@@ -230,6 +347,7 @@
         superClass: display.CircleShape,
         type: null,
         keyCode: null,
+        renderFlag:false,
         _index: 0,
         se: null,
 
@@ -252,10 +370,20 @@
             this.addChild(Label(this.type).setFontSize(this.width));
         },
 
+        //どっちかって言うとpressだと思う
         push: function () {
             this.se.clone().play();
-            this.pushWave();
+            this.renderFlag = true;
             //this.log();
+            this.play();
+        },
+
+        play: function () {
+            return otoge.music.play(this.type);
+        },
+
+        update: function () {
+            this.renderFlag && this.pushWave();
         },
 
         check: function () {
@@ -275,7 +403,49 @@
                 y: this.y,
             });
             this.parent.addChild(wave);
+            this.renderFlag = false;
         },
+
+    });
+
+
+    KeyButton.$extend({
+        TYPES: ['D', 'F', 'J', 'K'],
+        KEY_CODES: [68, 70, 74, 75],
+        TYPE_INDEX: {
+            d: 0,
+            f: 1,
+            j: 2,
+            k: 3,
+            D: 0,
+            F: 1,
+            J: 2,
+            K: 3,
+            0: 0,
+            1: 1,
+            2: 2,
+            3: 3,
+        },
+        KEY_PARAM: [
+            {
+                fillStyle: 'rgba(200,85,85,0.5)',
+                strokeStyle: '#f77',
+            },
+            {
+                fillStyle: 'rgba(85,85,200,0.5)',
+                strokeStyle: '#77f',
+            },
+            {
+                fillStyle: 'rgba(85,200,85,0.5)',
+                strokeStyle: '#7f7',
+            },
+            {
+                fillStyle: 'rgba(190,190,50,0.5)',
+                strokeStyle: 'yellow',
+            },
+        ],
+        getDefaultX: function (index) { return (1 + index) * 0.25 * SCREEN_SIZE - 80; },
+        DEFAULT_Y: SCREEN_SIZE - 100,
 
     });
 
@@ -285,20 +455,25 @@
 
         init: function (canvas) {
             this.superInit(canvas);
+            var self = this;
+            this.scaleY = 0.5;
+            this.tweener.to({
+                alpha: 0,
+                scaleY: 1.5,
+            }, 250).call(function () { self.remove(); });
         },
 
-        update: function (app) {
-            if (this.alpha < 0.1) { this.remove(); }
-            this.setScale(this.scaleX + 0.1);
-            this.alpha *= 0.82;
-        }
+        //update: function (app) {
+        //    if (this.alpha < 0.1) { this.remove(); }
+        //    this.setScale(this.scaleX + 0.1);
+        //    this.alpha *= 0.82;
+        //}
     });
 
     var KeyButtonManager = tm.define('', {
         superClass: CanvasElement,
 
         keyButtonList: null,
-        _music: null,
 
         __keydown: null,
         __keyup: null,
@@ -320,10 +495,6 @@
 
         },
 
-        setMusic: function (music) {
-            this._music = music;
-            return this;
-        },
 
         setup: function () {
             this.setOnkeydown();
@@ -346,8 +517,6 @@
 
         setOntouchstart: function () {
             var keyList = this.keyButtonList;
-            var isTouch = [];
-            var music = this._music;
 
             this.__touchstart = function (e) {
                 var touches = e.changedTouches;
@@ -359,7 +528,6 @@
                         if (e._touchID!=null) return false;
                         if (e.isHitPointRect(touch.x, touch.y)) {
                             e.push();
-                            music.play(e.type);
                             e._touchID = _touch.identifier;
                             return true;
                         }
@@ -389,7 +557,6 @@
             var codeList = [];
             var isDown = [0, 0, 0, 0];
             var keyList = this.keyButtonList;
-            var music = this._music;
 
 
             keyList.forEach(function (e) {
@@ -401,7 +568,6 @@
                 isDown[index] = true;
                 var kb = keyList[index];
                 kb.push();
-                music.play(kb.type);
             };
 
             this.__keyup = function (e) {
@@ -417,13 +583,12 @@
         setOnmousedown: function () {
 
             var keyList = this.keyButtonList;
-            var music = this._music;
 
             this.__mousedown = function (e) {
                 var mouse = KeyButtonManager.getPoint(e);
 
                 keyList.forEach(function (e) {
-                    e.isHitPointRect(mouse.x, mouse.y) && e.push(), music.play(e.type);
+                    e.isHitPointRect(mouse.x, mouse.y) && e.push();
                 });
             };
             app.element.addEventListener('mousedown', this.__mousedown);
@@ -443,40 +608,5 @@
         return { x: x, y: y };
     };
 
-    KeyButton.$extend({
-        TYPES: ['D', 'F', 'J', 'K'],
-        KEY_CODES: [68, 70, 74, 75],
-        TYPE_INDEX: {
-            d: 0,
-            f: 1,
-            j: 2,
-            k: 3,
-            D: 0,
-            F: 1,
-            J: 2,
-            K: 3,
-        },
-        KEY_PARAM: [
-            {
-                fillStyle: 'rgba(200,85,85,0.5)',
-                strokeStyle: '#f77',
-            },
-            {
-                fillStyle: 'rgba(85,85,200,0.5)',
-                strokeStyle: '#77f',
-            },
-            {
-                fillStyle: 'rgba(85,200,85,0.5)',
-                strokeStyle: '#7f7',
-            },
-            {
-                fillStyle: 'rgba(190,190,50,0.5)',
-                strokeStyle: 'yellow',
-            },
-        ],
-        getDefaultX: function (index) { return (1 + index) * 0.25 * SCREEN_SIZE - 80; },
-        DEFAULT_Y: SCREEN_SIZE - 100,
-
-    });
 
 }(tm);
