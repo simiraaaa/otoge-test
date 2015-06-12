@@ -1,6 +1,9 @@
 /// <reference path="tmlib.js"/>
 
 /// <reference path="tmlib.js"/>
+
+tm.asset.Script.loadStats();
+
 !function (tm, undefined) {
 
     /**
@@ -63,6 +66,7 @@
 
     tm.main(function () {
         app = tm.display.CanvasApp('#world');
+        app.enableStats();
         //pointing = app.pointing;
         app.fps = 30;
         app.resize(SCREEN_SIZE, SCREEN_SIZE).fitWindow().background = '#eee';
