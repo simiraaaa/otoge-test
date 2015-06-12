@@ -4,10 +4,10 @@
 !function (tm, undefined) {
 
     /**
-    ƒƒO‚©‚ç•ˆ–Ê‚ğì‚é
-    ‚Ü‚¸An‚Ü‚Á‚½‚çA‚ ‚ç‚©‚¶‚ßŒˆ‚ß‚Ä‚¨‚¢‚½•\¦‰Â”\—Ìˆæ‚Ü‚Å‚Ì•ˆ–Ê‚ğ•\¦‚·‚éB
-    •ˆ–Ê‚Ì•`‰æ‡‚Í‚ ‚Æ‚©‚ç(ˆê”Ôè‘O‚ªÅ‘O–Ê)
-    •`‰æ‚ÌXV‚ÍUPDATE‚Ås‚¤B
+    ãƒ­ã‚°ã‹ã‚‰è­œé¢ã‚’ä½œã‚‹
+    ã¾ãšã€å§‹ã¾ã£ãŸã‚‰ã€ã‚ã‚‰ã‹ã˜ã‚æ±ºã‚ã¦ãŠã„ãŸè¡¨ç¤ºå¯èƒ½é ˜åŸŸã¾ã§ã®è­œé¢ã‚’è¡¨ç¤ºã™ã‚‹ã€‚
+    è­œé¢ã®æç”»é †ã¯ã‚ã¨ã‹ã‚‰(ä¸€ç•ªæ‰‹å‰ãŒæœ€å‰é¢)
+    æç”»ã®æ›´æ–°ã¯UPDATEã§è¡Œã†ã€‚
 
     */
 
@@ -27,7 +27,7 @@
     var assets = assetManager.assets;
 
 
-    //‰Ÿ‚µ‚½”»’èn•bˆÈ“à
+    //æŠ¼ã—ãŸåˆ¤å®šnç§’ä»¥å†…
     var CHECKER = {
         just: 0.1,
         good: 0.13,
@@ -116,9 +116,10 @@
             this.label=Label('')
             .setPosition(10, 10)
             .setAlign('left')
-            .setFontSize(50)
+            .setFontSize(35)
             .setFillStyle('black')
             .setBaseline('top')
+            .setAlpha(0.3)
             .addChildTo(this);
 
             otoge.message = this;
@@ -129,14 +130,15 @@
                 'just:' + this.just
             + ',good:' + this.good
             + ',bad:' + this.bad
-            + ',miss:' + this.miss;
+            + ',miss:' + this.miss
+            + '\nchange speed:cursor upâ†‘ or downâ†“';
         }
 
 
     });
 
 
-    //•ˆ–Ê•`‰æ‚Æ‚©”»’è‚Æ‚©‘S”ÊƒNƒ‰ƒX
+    //è­œé¢æç”»ã¨ã‹åˆ¤å®šã¨ã‹å…¨èˆ¬ã‚¯ãƒ©ã‚¹
     var Music = tm.define('', {
         superClass: CanvasElement,
         score: null,
@@ -157,7 +159,7 @@
             otoge.music = this;
         },
 
-        //”»’è‚µ‚ÄƒXƒRƒA‚É”½‰f‚µ‚½‚è
+        //åˆ¤å®šã—ã¦ã‚¹ã‚³ã‚¢ã«åæ˜ ã—ãŸã‚Š
         play: function (t) {
             return this._elements[KeyButton.TYPE_INDEX[t]].play();
         },
@@ -202,7 +204,7 @@
     });
 
 
-    //•ˆ–Ê‚ğ•`‰æ‚·‚éˆê—ñ
+    //è­œé¢ã‚’æç”»ã™ã‚‹ä¸€åˆ—
     var ScoreWriter = tm.define('', {
         superClass: CanvasElement,
         type: null,
@@ -210,7 +212,7 @@
         JUST_Y: null,
         __image: null,
 
-        //•ˆ–Ê‚Ì—¬‚ê‚é‘¬“x”{—¦
+        //è­œé¢ã®æµã‚Œã‚‹é€Ÿåº¦å€ç‡
         speed:1.5,
 
 
@@ -230,8 +232,8 @@
             this.__image = ScoreImage({ type: type }).canvas.element;
         },
 
-        //•`‰æ‚·‚é‘ÎÛ‚É‚È‚éŠÔ‚ğ“ü‚ê‚Ä‚¢‚­
-        //‚±‚ê‚ğ‚â‚é•K—v‚ª‚ ‚é‚Ì‚©
+        //æç”»ã™ã‚‹å¯¾è±¡ã«ãªã‚‹æ™‚é–“ã‚’å…¥ã‚Œã¦ã„ã
+        //ã“ã‚Œã‚’ã‚„ã‚‹å¿…è¦ãŒã‚ã‚‹ã®ã‹
         //check: function () {
         //    var score = this.score;
         //    var target = this.target;
@@ -244,7 +246,7 @@
         //    return target.length;
         //},
 
-        //”»’è‚µ‚ÄA•`‰æ‚âƒXƒRƒA‚É”½‰f
+        //åˆ¤å®šã—ã¦ã€æç”»ã‚„ã‚¹ã‚³ã‚¢ã«åæ˜ 
         play: function () {
             if (!this.score.length) return otoge.NONE;
             //just = 0
@@ -276,16 +278,16 @@
         },
 
 
-        //‰Ÿ‚³‚ê‚È‚©‚Á‚½‚Æ‚«
+        //æŠ¼ã•ã‚Œãªã‹ã£ãŸã¨ã
         miss: function (targets) {
             var time = otoge.getRelativeTime();
             targets.length.times(otoge.music.miss);
-            //ƒ~ƒX‚µ‚½ƒGƒtƒFƒNƒg‚Æ‚©
+            //ãƒŸã‚¹ã—ãŸã‚¨ãƒ•ã‚§ã‚¯ãƒˆã¨ã‹
 
         },
 
 
-        //•ˆ–Ê‚ğŒã‚ë‚©‚ç•`‰æ
+        //è­œé¢ã‚’å¾Œã‚ã‹ã‚‰æç”»
         draw: function (canvas) {
             var c = canvas.context;
             if (!this.score.length) return;
@@ -300,7 +302,7 @@
 
             for (var i = score.length - 1; i >= 0; --i) {
                 var y = rTime - score[i];
-                //‚»‚à‚»‚à•\¦—ÌˆæŠO
+                //ãã‚‚ãã‚‚è¡¨ç¤ºé ˜åŸŸå¤–
                 if (y < drawArea) continue;
 
                 if (y > MISS){
@@ -334,7 +336,7 @@
         _render: function () {
             var c = this.canvas;
             c.context.scale(1, 0.5);
-            // •`‰æ
+            // æç”»
             var radius = 75;
             c.fillCircle(this.width / 2, this.height / 2, radius);
             c.strokeCircle(this.width / 2, this.height / 2, radius - Number(c.lineWidth) / 2);
@@ -342,7 +344,7 @@
 
     });
 
-    //‰Ÿ‚·‚Æ‚±‚ë
+    //æŠ¼ã™ã¨ã“ã‚
     var KeyButton = tm.define('', {
         superClass: display.CircleShape,
         type: null,
@@ -370,7 +372,7 @@
             this.addChild(Label(this.type).setFontSize(this.width));
         },
 
-        //‚Ç‚Á‚¿‚©‚Á‚ÄŒ¾‚¤‚Æpress‚¾‚Æv‚¤
+        //ã©ã£ã¡ã‹ã£ã¦è¨€ã†ã¨pressã ã¨æ€ã†
         push: function () {
             this.se.clone().play();
             this.renderFlag = true;
@@ -449,7 +451,7 @@
 
     });
 
-    //‚Ù‚í‚ñ‚Á‚Ä‚â‚Â
+    //ã»ã‚ã‚“ã£ã¦ã‚„ã¤
     var Wave = tm.define('', {
         superClass: display.Sprite,
 
