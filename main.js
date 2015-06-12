@@ -240,6 +240,7 @@ tm.asset.Script.loadStats();
                 
             });
             this.__image = ScoreImage({ type: type }).canvas.element;
+            this.dummy = display.CircleShape({x:this.x}).addChildTo(this);
         },
 
         //描画する対象になる時間を入れていく
@@ -319,7 +320,7 @@ tm.asset.Script.loadStats();
                     //miss
                     return this.miss(score.splice(0, 1 + i));
                 }
-                c.drawImage(image, 0, 0, 150, 75, 0, (1 + (y * speed)) * JUST_Y |0, 150, 75);
+                c.drawImage(image, 0, 0, 150, 75, 0, this.dummy.y=(1 + (y * speed)) * JUST_Y|0, 150, 75);
             }
         },
 
