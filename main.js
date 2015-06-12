@@ -293,7 +293,6 @@ tm.asset.Script.loadStats();
 
         //譜面を後ろから描画
         draw: function (canvas) {
-            if (this.type !== "D") return;
             var c = canvas.context;
             if (!this.score.length) return;
 
