@@ -136,7 +136,10 @@ tm.asset.Script.loadStats();
             + ',bad:' + this.bad
             + ',miss:' + this.miss
             + '\nchange speed:cursor up↑ or down↓'
-            + '\ntime:'+otoge.getRelativeTime();
+            + '\ny:' + otoge.y
+            +'\nsy:' + otoge.sy
+            +'\noney' + otoge.oney
+            +'\nposy:' + otoge.posy;
         }
 
 
@@ -313,6 +316,12 @@ tm.asset.Script.loadStats();
                 if (y > MISS){
                     //miss
                     return this.miss(score.splice(0, 1 + i));
+                }
+                if ('D' === this.type) {
+                    otoge.y = y;
+                    otoge.sy = y * speed;
+                    otoge.oney = otoge.sy + 1;
+                    otoge.posy = otoge.oney * JUST_Y;
                 }
                 c.drawImage(image, 0, 0, 150, 75, 0, (1 + (y * speed)) * JUST_Y, 150, 75);
             }
