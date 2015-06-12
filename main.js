@@ -135,7 +135,8 @@ tm.asset.Script.loadStats();
             + ',good:' + this.good
             + ',bad:' + this.bad
             + ',miss:' + this.miss
-            + '\nchange speed:cursor up↑ or down↓';
+            + '\nchange speed:cursor up↑ or down↓'
+            + '\ntime:'+otoge.getRelativeTime();
         }
 
 
@@ -217,7 +218,7 @@ tm.asset.Script.loadStats();
         __image: null,
 
         //譜面の流れる速度倍率
-        speed:0.5,
+        speed:1.0,
 
 
         init: function (type, score) {
