@@ -136,10 +136,7 @@ tm.asset.Script.loadStats();
             + ',bad:' + this.bad
             + ',miss:' + this.miss
             + '\nchange speed:cursor up↑ or down↓'
-            + '\ny:' + otoge.y
-            +'\nsy:' + otoge.sy
-            +'\noney' + otoge.oney
-            +'\nposy:' + otoge.posy;
+            +'\ndrawcount:'+otoge.count;
         }
 
 
@@ -238,6 +235,7 @@ tm.asset.Script.loadStats();
                 
             });
             this.__image = ScoreImage({ type: type }).canvas.element;
+            otoge.count = 0;
         },
 
         //描画する対象になる時間を入れていく
@@ -317,12 +315,7 @@ tm.asset.Script.loadStats();
                     //miss
                     return this.miss(score.splice(0, 1 + i));
                 }
-                if ('D' === this.type) {
-                    otoge.y = y;
-                    otoge.sy = y * speed;
-                    otoge.oney = otoge.sy + 1;
-                    otoge.posy = otoge.oney * JUST_Y;
-                }
+                otoge.count++;
                 c.drawImage(image, 0, 0, 150, 75, 0, (1 + (y * speed)) * JUST_Y, 150, 75);
             }
         },
