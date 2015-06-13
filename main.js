@@ -13,7 +13,7 @@ tm.asset.Script.loadStats();
     描画の更新はUPDATEで行う。
 
     */
-    var VERSION = '0.0.3';
+    var VERSION = '0.0.4';
 
     var SCREEN_SIZE = 640;
     var ASSETS = {
@@ -54,7 +54,7 @@ tm.asset.Script.loadStats();
         //AndroidでcurrentTimeが更新されないことがあるバグの対策
         get currentTime() {
             var timeStamp = context.currentTime;
-            if (this.timeStamp !== timeStamp) {
+            if (this.timeStamp < timeStamp) {
                 this.prevTime = +new Date();
                 return (this.timeStamp = timeStamp);
             }
