@@ -13,7 +13,7 @@ tm.asset.Script.loadStats();
     描画の更新はUPDATEで行う。
 
     */
-    var VERSION = '0.0.1';
+    var VERSION = '0.0.2';
 
     var SCREEN_SIZE = 640;
     var ASSETS = {
@@ -47,7 +47,7 @@ tm.asset.Script.loadStats();
     var otoge = {
         music: null,
 
-        timeStamp: 0,
+        timeStamp: -1,
 
         prevTime :0,
         //AndroidでcurrentTimeが更新されないことがあるバグの対策
