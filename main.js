@@ -52,7 +52,7 @@ tm.asset.Script.loadStats();
         //AndroidでcurrentTimeが更新されないことがあるバグの対策
         get currentTime() {
             var now = +new Date();
-            var delta = this.prevTime - now;
+            var delta = now - this.prevTime;
             this.prevTime = now;
 
             var timeStamp = context.currentTime;
