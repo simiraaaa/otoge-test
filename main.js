@@ -58,6 +58,7 @@ tm.asset.Script.loadStats();
                 this.prevTime = +new Date();
                 return (this.timeStamp = timeStamp);
             }
+            if (timeStamp === 0) return 0;
             var delta = new Date() - this.prevTime;
             otoge.message.debug = delta;
             return timeStamp + delta / 1000;
