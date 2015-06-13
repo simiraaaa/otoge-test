@@ -13,7 +13,7 @@ tm.asset.Script.loadStats();
     描画の更新はUPDATEで行う。
 
     */
-    var VERSION = '0.0.4';
+    var VERSION = '0.0.5';
 
     var SCREEN_SIZE = 640;
     var ASSETS = {
@@ -51,17 +51,19 @@ tm.asset.Script.loadStats();
 
         prevTime: 0,
 
+        prevReturn:0,
+
         //AndroidでcurrentTimeが更新されないことがあるバグの対策
         get currentTime() {
             var timeStamp = context.currentTime;
             if (this.timeStamp < timeStamp) {
                 this.prevTime = +new Date();
-                return (this.timeStamp = timeStamp);
+                return (this.prevReturn <timeStamp ? this.prevReturn= this.timeStamp = timeStamp:this.prevReturn);
             }
             if (timeStamp === 0) return 0;
             var delta = new Date() - this.prevTime;
             otoge.message.debug = delta;
-            return timeStamp + delta / 1000;
+            return this.prevReturn < (timeStamp=(timeStamp + delta / 1000))?this.prevReturn = timeStamp:this.prevReturn;
 
         },
 
@@ -392,7 +394,7 @@ tm.asset.Script.loadStats();
                 lineWidth: 10,
                 scaleY: 0.5,
             }.$extend(KeyButton.KEY_PARAM[index]));
-
+            this.height = 300;
             this.type = KeyButton.TYPES[index];
             this.keyCode = KeyButton.KEY_CODES[index];
             this._index = index;
