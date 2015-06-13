@@ -181,8 +181,7 @@ tm.asset.Script.loadStats();
             KeyButton.TYPES.forEach(function (t) {
                elms[KeyButton.TYPE_INDEX[t]] = elms[t] = ScoreWriter(t, score).addChildTo(self);
             });
-            otoge.delayTime = context.currentTime;
-
+            otoge.delayTime = otoge.currentTime;
             otoge.music = this;
         },
 
@@ -420,7 +419,7 @@ tm.asset.Script.loadStats();
 
         log: function () {
             var o = {};
-            o[this.type] = context.currentTime - otoge.delayTime;
+            o[this.type] = otoge.currentTime - otoge.delayTime;
             logger.push(o);
         },
 
