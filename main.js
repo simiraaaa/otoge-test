@@ -40,13 +40,29 @@ tm.asset.Script.loadStats();
     };
 
 
-
+    var Date = window.Date;
     var app;
     //var pointing;
     var otoge = {
-        music:null,
+        music: null,
+
+        timeStamp: 0,
+
+        prevTime :0,
+        //AndroidでcurrentTimeが更新されないことがあるバグの対策
+        get currentTime() {
+            var now = +new Date();
+            var delta = this.prevTime - now;
+            this.prevTime = now;
+
+            var timeStamp = context.currentTime;
+            if (this.timeStamp !== timeStamp) return (this.timeStamp = timeStamp);
+            return (this.timeStamp = (timeStamp + delta / 1000));
+
+        },
+
         getRelativeTime: function () {
-            return context.currentTime - otoge.delayTime;
+            return otoge.currentTime - otoge.delayTime;
         },
         message:null,
         JUST: 1,
@@ -223,7 +239,7 @@ tm.asset.Script.loadStats();
         __image: null,
 
         //譜面の流れる速度倍率
-        speed:1.0,
+        speed:1.2,
 
 
         init: function (type, score) {
@@ -237,10 +253,8 @@ tm.asset.Script.loadStats();
             window.addEventListener('keydown' , function (e) {
                 var k = e.which;
                 if (k === 38) { sel.speed += 0.05; } else if (k === 40) { sel.speed -= 0.05; }
-                
             });
             this.__image = ScoreImage({ type: type }).canvas.element;
-            this.dummy = display.CircleShape({x:this.x}).addChildTo(this);
         },
 
         //描画する対象になる時間を入れていく
@@ -320,7 +334,7 @@ tm.asset.Script.loadStats();
                     //miss
                     return this.miss(score.splice(0, 1 + i));
                 }
-                c.drawImage(image, 0, 0, 150, 75, 0, this.dummy.y=(1 + (y * speed)) * JUST_Y|0, 150, 75);
+                c.drawImage(image, 0, 0, 150, 75, 0, (1 + (y * speed)) * JUST_Y|0, 150, 75);
             }
         },
 
