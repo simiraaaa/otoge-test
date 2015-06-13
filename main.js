@@ -13,7 +13,7 @@ tm.asset.Script.loadStats();
     描画の更新はUPDATEで行う。
 
     */
-    var VERSION = '0.0.2';
+    var VERSION = '0.0.3';
 
     var SCREEN_SIZE = 640;
     var ASSETS = {
@@ -49,16 +49,18 @@ tm.asset.Script.loadStats();
 
         timeStamp: -1,
 
-        prevTime :0,
+        prevTime: 0,
+
         //AndroidでcurrentTimeが更新されないことがあるバグの対策
         get currentTime() {
-            var now = +new Date();
-            var delta = now - this.prevTime;
-            this.prevTime = now;
-
             var timeStamp = context.currentTime;
-            if (this.timeStamp !== timeStamp) return (this.timeStamp = timeStamp);
-            return (this.timeStamp = (timeStamp + delta / 1000));
+            if (this.timeStamp !== timeStamp) {
+                this.prevTime = +new Date();
+                return (this.timeStamp = timeStamp);
+            }
+            var delta = new Date() - this.prevTime;
+            otoge.message.debug = delta;
+            return timeStamp + delta / 1000;
 
         },
 
@@ -135,6 +137,7 @@ tm.asset.Script.loadStats();
         good: 0,
         bad: 0,
         miss: 0,
+        debug:0,
 
 
         init: function () {
@@ -153,7 +156,7 @@ tm.asset.Script.loadStats();
         },
 
         update: function (app) {
-            this.label.text ='ver.:'+VERSION+'\n'+
+            this.label.text ='ver.'+VERSION+'\ndebug:'+this.debug+'\n'+
                 'just:' + this.just
             + ',good:' + this.good
             + ',bad:' + this.bad
