@@ -13,6 +13,7 @@ tm.asset.Script.loadStats();
     描画の更新はUPDATEで行う。
 
     */
+    var VERSION = '0.0.1';
 
     var SCREEN_SIZE = 640;
     var ASSETS = {
@@ -152,7 +153,7 @@ tm.asset.Script.loadStats();
         },
 
         update: function (app) {
-            this.label.text =
+            this.label.text ='ver.:'+VERSION+'\n'+
                 'just:' + this.just
             + ',good:' + this.good
             + ',bad:' + this.bad
