@@ -122,12 +122,6 @@ tm.asset.Script.loadStats();
             this.addChild(KeyButtonManager().setup());
             this.addChild(music);
             this.addChild(MessageLayer());
-            var dummy = display.CircleShape();
-            dummy.setPosition(320, 320).update = function () {
-                this.y += 10;
-                this.y>600 &&( this.y=0);
-            };
-            this.addChild(dummy);
         },
     });
 
